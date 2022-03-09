@@ -5,26 +5,28 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
     <title>{{title}}</title>
     {% endblock %}
 </head>
 <body>
     <h1>Main page</h1>
     {% block content %}
-    {% for m in menu %}
-    <li>{{m}}</li>
-    {% endfor %}
-
+    <ul>
+        {% for m in menu %}
+        <a href="{{m.url}}"><li>{{m.name}}</li></a>
+        {% endfor %}
+    </ul>
     {% if menu.__len__() > 1 %}
         <h1> YES </h1>
     {% else %}
         <h1>NO</h1>
     {% endif %}
 
-    {% for i in range(100) %}
+    <!-- {% for i in range(100) %}
         <h1>{{i}}</h1>
 
-    {% endfor %}
+    {% endfor %} -->
     {% endblock %}
 </body>
 </html>
