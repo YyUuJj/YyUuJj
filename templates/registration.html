@@ -2,6 +2,9 @@
 
 {% block content %}
 {{ super() }}
+{% for cat, msg in get_flashed_messages(True) %}
+<h1 class="{{cat}}">{{msg}}</h1>
+{% endfor %}
 <form action="/registration" method="POST">
     <input type="text" name="username" placeholder="Введите имя" required>
     <input type="submit" value="Отправить">
