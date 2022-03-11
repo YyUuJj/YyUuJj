@@ -1,10 +1,16 @@
-from flask import Flask, render_template, request, session, url_for, flash, redirect, abort
-import route
+from distutils.debug import DEBUG
+from flask import Flask, render_template, request, session, url_for, flash, redirect, abort, g
+import sqlite3, os
 
+#config
+DATABASE = 'tmp/flsite.db'
+DEBUG = True
+SECRET_KEY = '12341'
 
 app = Flask(__name__)
+app.config.from_object(__name__)
+app.config.update(dict(DATABASE=os.path.join(app.root_path,'flsite.db')))
 
-app.config['SECRET_KEY'] = '12341'
 
 menu = [
     {"name": "Главная", "url": "index"},
@@ -24,6 +30,7 @@ def pageNotFound(error):
 @app.route("/")
 @app.route("/index")
 def index():
+    db = get_db()
     return render_template('index.html', title="test", menu=menu, num = num)
 
 
@@ -58,6 +65,31 @@ def profile(username):
         print("СРАБОТАЛО")
         abort(401)
     return f"Имя пользователя: {username}"
+
+@app.teardown_appcontext
+def close_db(error):
+    if hasattr(g, 'link_db'):
+        g.link_db.close()
+
+def get_db():
+    if not hasattr(g, 'link_db'):
+        g.link_db = connect_db()
+    else:
+        print('бд подключена')
+    return g.link_db
+
+def connect_db():
+    conn = sqlite3.connect(app.config['DATABASE'])
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def create_db():
+    db = connect_db()
+    with app.open_resource('sq_db.sql', mode='r') as f:
+        db.cursor().executescript(f.read())
+    db.commit()
+    db.close()
+
 
 if __name__ == "__main__":
     app.run(debug=True)
