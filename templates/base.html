@@ -14,7 +14,7 @@
     {% block content %}
     <ul>
         {% for m in menu %}
-        <a href="{{m.url}}"><li>{{m.name}}</li></a>
+        <a href="{{url_for('addPost')}}"><li>{{m.title}}</li></a>
         {% endfor %}
     </ul>
     {% if menu.__len__() > 1 %}

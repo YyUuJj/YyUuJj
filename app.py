@@ -1,6 +1,7 @@
 from distutils.debug import DEBUG
 from flask import Flask, render_template, request, session, url_for, flash, redirect, abort, g
 import sqlite3, os
+from FDataBase import FDataBase
 
 #config
 DATABASE = 'tmp/flsite.db'
@@ -31,7 +32,9 @@ def pageNotFound(error):
 @app.route("/index")
 def index():
     db = get_db()
-    return render_template('index.html', title="test", menu=menu, num = num)
+    dbase = FDataBase(db)
+    print(type(dbase.getMenu()))
+    return render_template('index.html', title="test", menu=dbase.getMenu(), num = num, posts=dbase.getPostsAnonce())
 
 
 @app.route("/about")
@@ -65,6 +68,34 @@ def profile(username):
         print("СРАБОТАЛО")
         abort(401)
     return f"Имя пользователя: {username}"
+
+
+@app.route("/add_post", methods=["POST","GET"])
+def addPost():
+    db = get_db()
+    dbase = FDataBase(db)
+
+    if request.method == "POST":
+        if len(request.form['name']) > 4 and len(request.form['post']) > 10:
+            res = dbase.addPost(request.form['name'], request.form['post'])
+            if not res:
+                flash("Ошибка добавления статьи", category='error')
+                print("ОШИБКА ЗДЕСЬ")
+            else:
+                flash("Статья добавлена успешно", category='success')
+        else:
+            flash("Ошибка добавления статьи", category='error')
+            print(request.form['name'], request.form['post'])
+    return render_template('add_post.html', menu=menu, title='Добавление статьи')
+
+@app.route('/post/<int:id_post>')
+def showPost(id_post):
+    db = get_db()
+    dbase = FDataBase(db)
+    title,post = dbase.getPost(id_post)
+    if not title:
+        abort(404)
+    return render_template('post.html', menu=dbase.getMenu(), title=title, post=post)
 
 @app.teardown_appcontext
 def close_db(error):
