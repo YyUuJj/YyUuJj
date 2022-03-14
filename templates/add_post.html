@@ -6,6 +6,7 @@
 {% endfor %}
 <form action="{{url_for('addPost')}}" method="post">
     <input type="text" name="name" placeholder="Название статьи">
+    <input type="text" name="url" placeholder="URL статьи">
     <textarea name="post" cols="30" rows="10"></textarea>
     <input type="submit" value="Добавить статью">
 </form>

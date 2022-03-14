@@ -6,7 +6,8 @@
 <h2>Список статей:</h2>
 <ul>
 {% for p in posts %}
-<li><a href="{{ url_for('showPost', id_post=p.id)}}">{{p.title}}</a></li>
+<li><a href="{{ url_for('showPost', alias=p.url)}}">{{p.title}}</a></li>
+<p>{{ p.text[:50] | striptags }}</p>
 {% endfor %}
 </ul>
 {% endblock %}
