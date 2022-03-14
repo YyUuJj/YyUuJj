@@ -10,19 +10,24 @@
     {% endblock %}
 </head>
 <body>
-    <h1>Main page</h1>
     {% block content %}
-    <ul>
-        {% for m in menu %}
-        <a href="{{url_for('addPost')}}"><li>{{m.title}}</li></a>
-        {% endfor %}
-    </ul>
-    {% if menu.__len__() > 1 %}
-        <h1> YES </h1>
-    {% else %}
-        <h1>NO</h1>
-    {% endif %}
+    <header>
+        <div class="header__wrapper">
 
+            <nav class="menu">
+                <ul class="menu__list">
+                    <a href="{{url_for('addPost')}}" class="menu__list__item""><li>Новости</li></a>
+                    <a href="{{url_for('addPost')}}" class="menu__list__item""><li>Категории</li></a>
+                    <a href="{{url_for('addPost')}}" class="menu__list__item""><li>Самое интересное</li></a>
+                </ul>
+            </nav>
+        
+            <div class="buttons__regist">
+                <a class="regist" href="###">Регистрация</a>
+                <a href="###" class="enter">Вход</a>
+            </div>
+        </header>
+        </div>
     <!-- {% for i in range(100) %}
         <h1>{{i}}</h1>
 
