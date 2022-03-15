@@ -39,7 +39,6 @@ class FDataBase:
             res = self.__cur.fetchone()
             print(res)
             if res:
-                base = url_for('static', filename='images_html')
                 return res
         except sqlite3.Error as e:
             print("Ошибка получения статьи из бд "+str(e))
