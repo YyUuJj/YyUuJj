@@ -34,10 +34,8 @@ class FDataBase:
 
     def getPost(self, alias):
         try:
-            self.__cur.execute(f'SELECT title, text FROM posts WHERE url LIKE "{alias}" LIMIT 1')
-            print(alias)
+            self.__cur.execute(f'SELECT id, title, text, likes FROM posts WHERE url LIKE "{alias}" LIMIT 1')
             res = self.__cur.fetchone()
-            print(res)
             if res:
                 return res
         except sqlite3.Error as e:

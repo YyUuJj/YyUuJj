@@ -88,14 +88,19 @@ def addPost():
             print(request.form['name'], request.form['post'])
     return render_template('add_post.html', menu=menu, title='Добавление статьи')
 
-@app.route('/post/<alias>')
+@app.route('/post/<alias>', methods=["POST", "GET"])
 def showPost(alias):
     db = get_db()
     dbase = FDataBase(db)
-    title,post = dbase.getPost(alias)
+    id_post,title,post,likes = dbase.getPost(alias)
+    if request.method == "POST":
+        flash("YES")
+        request.method = None
+    else:
+        print("NO")
     if not title:
         abort(404)
-    return render_template('post.html', menu=dbase.getMenu(), title=title, post=post)
+    return render_template('post.html', menu=dbase.getMenu(), title=title, post=post, likes=likes, id_post=id_post)
 
 @app.teardown_appcontext
 def close_db(error):
