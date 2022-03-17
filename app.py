@@ -1,5 +1,5 @@
 from distutils.debug import DEBUG
-from flask import Flask, render_template, request, session, url_for, flash, redirect, abort, g
+from flask import Flask, make_response, render_template, request, session, url_for, flash, redirect, abort, g
 import sqlite3, os
 from FDataBase import FDataBase
 
@@ -52,15 +52,32 @@ def registration():
 
     return render_template('registration.html', title="registration", menu=menu, users=users)
 
-@app.route("/login", methods=['POST', "GET"])
+# @app.route("/login", methods=['POST', "GET"])
+# def login():
+#     if request.method == "POST":
+#         if 'userLogged' in session:
+#             return redirect(url_for('profile', username=session['userLogged']))
+#         elif request.form['username'] == 'islam' and request.form['password'] == '123':
+#             session['userLogged'] = request.form['username']
+#             return redirect(url_for('profile', username=session['userLogged']))
+#     return render_template('login.html', title='Авторизация', menu=menu)
+
+@app.route("/login")
 def login():
-    if request.method == "POST":
-        if 'userLogged' in session:
-            return redirect(url_for('profile', username=session['userLogged']))
-        elif request.form['username'] == 'islam' and request.form['password'] == '123':
-            session['userLogged'] = request.form['username']
-            return redirect(url_for('profile', username=session['userLogged']))
-    return render_template('login.html', title='Авторизация', menu=menu)
+    log = ""
+    if request.cookies.get('logged'):
+        log = request.cookies.get('logged')
+        print(request.cookies)
+    
+    res = make_response(f'<h1>Форма авторизации</h1> <p>logged {log}</p>')
+    res.set_cookie('logged', 'yes', 30*24*3600)
+    return res
+
+@app.route("/logout")
+def logout():
+    res = make_response("<p>Вы больше не авторизованы</p>")
+    res.set_cookie('logged', "", 0)
+    return res
 
 @app.route("/profile/<username>")
 def profile(username):
