@@ -8,7 +8,10 @@ DATABASE = 'tmp/flsite.db'
 DEBUG = True
 SECRET_KEY = '12341'
 
+
+
 app = Flask(__name__)
+app.config['SECRET_KEY'] = '725a259864a0f8c7636a25ddc63a8c966afd6f86'
 app.config.from_object(__name__)
 app.config.update(dict(DATABASE=os.path.join(app.root_path,'flsite.db')))
 
@@ -31,10 +34,14 @@ def pageNotFound(error):
 @app.route("/")
 @app.route("/index")
 def index():
+    if 'visits' in session:
+        session['visits'] = session.get('visits') + 1
+    else:
+        session['visits'] = 1
     db = get_db()
     dbase = FDataBase(db)
     print(type(dbase.getMenu()))
-    return render_template('index.html', title="test", menu=dbase.getMenu(), num = num, posts=dbase.getPostsAnonce())
+    return render_template('index.html', title="test", menu=dbase.getMenu(), num = num, posts=dbase.getPostsAnonce(), visits=session['visits'])
 
 
 @app.route("/about")

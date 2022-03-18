@@ -2,7 +2,7 @@
 {% block content %}
 {{ super() }}
 <p>main page</p>
-
+<h1>Число посещений данной страницы: {{ visits }}</h1>
 <h2>Список статей:</h2>
 <ul>
 {% for p in posts %}
