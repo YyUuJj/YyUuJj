@@ -2,12 +2,13 @@ from distutils.debug import DEBUG
 from flask import Flask, make_response, render_template, request, session, url_for, flash, redirect, abort, g
 import sqlite3, os
 from FDataBase import FDataBase
+from werkzeug.security import generate_password_hash, check_password_hash
 
 #config
 DATABASE = 'tmp/flsite.db'
 DEBUG = True
 SECRET_KEY = '12341'
-
+dbase = None
 
 
 app = Flask(__name__)
@@ -26,6 +27,8 @@ menu = [
 num = 0
 
 users = []
+
+
 
 @app.errorhandler(404)
 def pageNotFound(error):
@@ -51,11 +54,17 @@ def about():
 @app.route("/registration", methods=['POST',"GET"])
 def registration():
     if request.method == "POST":
-        users.append(request.form['username'])
-        if len(request.form['username']) > 2:
-            flash("Сообщение отправлено", category='success')
+        if len(request.form['name']) > 4 and len(request.form['email']) > 4 \
+            and len(request.form['password']) > 4 and request.form['password'] == request.form['password_two']:
+            hash = generate_password_hash(request.form['password'])
+            res = dbase.addUser(request.form['name'],request.form['email'], hash)
+            if res:
+                flash('Вы успешно зарегистрированы', 'success')
+                return redirect(url_for('login'))
+            else:
+                flash("Ошибка при добавлении в БД", 'error')
         else:
-            flash("ошибка отправки", category='error')
+            flash("Вы неправильно заполнили форму", 'error')
 
     return render_template('registration.html', title="registration", menu=menu, users=users)
 
@@ -69,16 +78,21 @@ def registration():
 #             return redirect(url_for('profile', username=session['userLogged']))
 #     return render_template('login.html', title='Авторизация', menu=menu)
 
+# @app.route("/login")
+# def login():
+#     log = ""
+#     if request.cookies.get('logged'):
+#         log = request.cookies.get('logged')
+#         print(request.cookies)
+    
+#     res = make_response(f'<h1>Форма авторизации</h1> <p>logged {log}</p>')
+#     res.set_cookie('logged', 'yes', 30*24*3600)
+#     return res
+
 @app.route("/login")
 def login():
-    log = ""
-    if request.cookies.get('logged'):
-        log = request.cookies.get('logged')
-        print(request.cookies)
-    
-    res = make_response(f'<h1>Форма авторизации</h1> <p>logged {log}</p>')
-    res.set_cookie('logged', 'yes', 30*24*3600)
-    return res
+    return render_template('login.html', title='Авторизация')
+
 
 @app.route("/logout")
 def logout():
@@ -96,9 +110,6 @@ def profile(username):
 
 @app.route("/add_post", methods=["POST","GET"])
 def addPost():
-    db = get_db()
-    dbase = FDataBase(db)
-
     if request.method == "POST":
         if len(request.form['name']) > 4 and len(request.form['post']) > 10:
             res = dbase.addPost(request.form['name'], request.form['post'], request.form['url'])
@@ -114,8 +125,6 @@ def addPost():
 
 @app.route('/post/<alias>', methods=["POST", "GET"])
 def showPost(alias):
-    db = get_db()
-    dbase = FDataBase(db)
     id_post,title,post,likes = dbase.getPost(alias)
     if request.method == "POST":
         flash("YES")
@@ -149,6 +158,13 @@ def create_db():
         db.cursor().executescript(f.read())
     db.commit()
     db.close()
+
+
+@app.before_request
+def before_request():
+    global dbase
+    db = get_db()
+    dbase = FDataBase(db)
 
 
 if __name__ == "__main__":

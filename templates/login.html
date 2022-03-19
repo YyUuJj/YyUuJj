@@ -2,8 +2,9 @@
 {% block content %}
 {{ super() }}
 <form action="/login" method="POST">
-    <input type="text" name="username">
+    <input type="email" name="email">
     <input type="text" name="password">
-    <input type="submit">
+    <input type="checkbox"> Запомнить меня
+    <input type="submit" value="Войти">
 </form>
 {% endblock %}
