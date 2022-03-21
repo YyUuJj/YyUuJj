@@ -1,8 +1,12 @@
+from cmath import log
 from distutils.debug import DEBUG
 from flask import Flask, make_response, render_template, request, session, url_for, flash, redirect, abort, g
 import sqlite3, os
 from FDataBase import FDataBase
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import LoginManager, login_user, login_required
+from UserLogin import UserLogin
+
 
 #config
 DATABASE = 'tmp/flsite.db'
@@ -15,7 +19,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = '725a259864a0f8c7636a25ddc63a8c966afd6f86'
 app.config.from_object(__name__)
 app.config.update(dict(DATABASE=os.path.join(app.root_path,'flsite.db')))
-
+login_manager = LoginManager(app)
 
 menu = [
     {"name": "Главная", "url": "index"},
@@ -89,8 +93,16 @@ def registration():
 #     res.set_cookie('logged', 'yes', 30*24*3600)
 #     return res
 
-@app.route("/login")
+@app.route("/login", methods=["POST", "GET"])
 def login():
+    if request.method == "POST":
+        user = dbase.getUserByEmail(request.form['email'])
+        if user and check_password_hash(user['password'], request.form['password']):
+            userLogin = UserLogin().create(user)
+            login_user(userLogin)
+            return redirect(url_for('index'))
+        flash("Неверная пара логин/пароль", 'error')
+
     return render_template('login.html', title='Авторизация')
 
 
@@ -124,6 +136,7 @@ def addPost():
     return render_template('add_post.html', menu=menu, title='Добавление статьи')
 
 @app.route('/post/<alias>', methods=["POST", "GET"])
+@login_required
 def showPost(alias):
     id_post,title,post,likes = dbase.getPost(alias)
     if request.method == "POST":
@@ -166,6 +179,10 @@ def before_request():
     db = get_db()
     dbase = FDataBase(db)
 
+@login_manager.user_loader
+def load_user(user_id):
+    print("load user")
+    return UserLogin().fromDB(user_id, dbase)
 
 if __name__ == "__main__":
     app.run(debug=True)
