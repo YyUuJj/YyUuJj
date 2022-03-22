@@ -1,10 +1,13 @@
 {% extends 'base.html' %}
 {% block content %}
 {{ super() }}
-<form action="/login" method="POST">
+{% for message in get_flashed_messages() %}
+	<div class="alert">{{ message }}</div>
+{% endfor %}
+<form action="" method="POST">
     <input type="email" name="email">
     <input type="text" name="password">
-    <input type="checkbox"> Запомнить меня
+    <input type="checkbox" name="remainme"> Запомнить меня
     <input type="submit" value="Войти">
 </form>
 {% endblock %}

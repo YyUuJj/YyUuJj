@@ -1,10 +1,11 @@
 from cmath import log
 from distutils.debug import DEBUG
+import re
 from flask import Flask, make_response, render_template, request, session, url_for, flash, redirect, abort, g
 import sqlite3, os
 from FDataBase import FDataBase
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import LoginManager, login_user, login_required
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from UserLogin import UserLogin
 
 
@@ -20,6 +21,9 @@ app.config['SECRET_KEY'] = '725a259864a0f8c7636a25ddc63a8c966afd6f86'
 app.config.from_object(__name__)
 app.config.update(dict(DATABASE=os.path.join(app.root_path,'flsite.db')))
 login_manager = LoginManager(app)
+login_manager.login_view = 'login'
+login_manager.login_message = 'Для начала работы авторизуйтесь'
+login_manager.login_message_category = 'success'
 
 menu = [
     {"name": "Главная", "url": "index"},
@@ -95,29 +99,33 @@ def registration():
 
 @app.route("/login", methods=["POST", "GET"])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('profile'))
     if request.method == "POST":
         user = dbase.getUserByEmail(request.form['email'])
         if user and check_password_hash(user['password'], request.form['password']):
             userLogin = UserLogin().create(user)
-            login_user(userLogin)
-            return redirect(url_for('index'))
+            rm = True if request.form.get('remainme') else False
+            print(rm)
+            login_user(userLogin, remember=rm)
+            return redirect(request.args.get("next") or url_for('profile'))
         flash("Неверная пара логин/пароль", 'error')
 
     return render_template('login.html', title='Авторизация')
 
 
-@app.route("/logout")
-def logout():
-    res = make_response("<p>Вы больше не авторизованы</p>")
-    res.set_cookie('logged', "", 0)
-    return res
+# @app.route("/logout")
+# def logout():
+#     res = make_response("<p>Вы больше не авторизованы</p>")
+#     res.set_cookie('logged', "", 0)
+#     return res
 
-@app.route("/profile/<username>")
-def profile(username):
-    if 'userLogged' not in session or session['userLogged'] != username:
-        print("СРАБОТАЛО")
-        abort(401)
-    return f"Имя пользователя: {username}"
+# @app.route("/profile/<username>")
+# def profile(username):
+#     if 'userLogged' not in session or session['userLogged'] != username:
+#         print("СРАБОТАЛО")
+#         abort(401)
+#     return f"Имя пользователя: {username}"
 
 
 @app.route("/add_post", methods=["POST","GET"])
@@ -183,6 +191,19 @@ def before_request():
 def load_user(user_id):
     print("load user")
     return UserLogin().fromDB(user_id, dbase)
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash("Вы вышли из аккаунта", "success")
+    return redirect(url_for('login'))
+
+@app.route('/profile')
+@login_required
+def profile():
+    return f"""<p><a href="{url_for('logout')}">Выйти из профила</a>
+    <p> user info: {current_user.get_id()}"""
 
 if __name__ == "__main__":
     app.run(debug=True)
