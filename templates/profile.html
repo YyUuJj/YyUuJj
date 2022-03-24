@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+{{ super() }}
+{% for cat, msg in get_flashed_messages(True) %}
+<h1 class="{{cat}}">{{msg}}</h1>
+{% endfor %}
+<img src="{{ url_for('userava') }}" alt="">
+    <form action="{{url_for('upload')}}" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <input type="submit" value="Загрузить">
+    </form>
+    Имя: {{ current_user.getName() }}
+    Email: {{ current_user.getEmail() }}
+    <a href="{{ url_for('logout'  )}}">Выйти из профиля</a>
+{% endblock %}
