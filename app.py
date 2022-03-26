@@ -7,6 +7,7 @@ from FDataBase import FDataBase
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from UserLogin import UserLogin
+from forms import LoginForm
 
 
 #config
@@ -102,31 +103,29 @@ def registration():
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('profile'))
-    if request.method == "POST":
-        user = dbase.getUserByEmail(request.form['email'])
-        if user and check_password_hash(user['password'], request.form['password']):
+
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = dbase.getUserByEmail(form.email.data)
+        if user and check_password_hash(user['password'], form.psw.data):
             userLogin = UserLogin().create(user)
-            rm = True if request.form.get('remainme') else False
+            rm = form.remember.data
             print(rm)
             login_user(userLogin, remember=rm)
             return redirect(request.args.get("next") or url_for('profile'))
         flash("Неверная пара логин/пароль", 'error')
+    return render_template("login.html", form=form)
+    # if request.method == "POST":
+    #     user = dbase.getUserByEmail(request.form['email'])
+    #     if user and check_password_hash(user['password'], request.form['password']):
+    #         userLogin = UserLogin().create(user)
+    #         rm = True if request.form.get('remainme') else False
+    #         print(rm)
+    #         login_user(userLogin, remember=rm)
+    #         return redirect(request.args.get("next") or url_for('profile'))
+    #     flash("Неверная пара логин/пароль", 'error')
 
-    return render_template('login.html', title='Авторизация')
-
-
-# @app.route("/logout")
-# def logout():
-#     res = make_response("<p>Вы больше не авторизованы</p>")
-#     res.set_cookie('logged', "", 0)
-#     return res
-
-# @app.route("/profile/<username>")
-# def profile(username):
-#     if 'userLogged' not in session or session['userLogged'] != username:
-#         print("СРАБОТАЛО")
-#         abort(401)
-#     return f"Имя пользователя: {username}"
+    # return render_template('login.html', title='Авторизация')
 
 
 @app.route("/add_post", methods=["POST","GET"])

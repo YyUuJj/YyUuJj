@@ -5,9 +5,14 @@
 	<div class="alert">{{ message }}</div>
 {% endfor %}
 <form action="" method="POST">
-    <input type="email" name="email">
+{{ form.hidden_tag() }}
+{{ form.email.label() }} {{ form.email() }}
+{{ form.psw.label() }} {{ form.psw() }}
+{{ form.remember.label() }} {{ form.remember() }}
+{{ form.submit() }}
+    <!-- <input type="email" name="email">
     <input type="text" name="password">
     <input type="checkbox" name="remainme"> Запомнить меня
-    <input type="submit" value="Войти">
+    <input type="submit" value="Войти"> -->
 </form>
 {% endblock %}
