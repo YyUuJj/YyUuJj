@@ -9,14 +9,19 @@
 <h1 class="{{cat}}">{{msg}}</h1>
 {% endfor %}
 <form action="/registration" method="POST">
-    <input type="text" name="name" placeholder="Введите имя" required>
-    <input type="email" name="email" placeholder="email">
-    <input type="password" name="password" placeholder="password">
-    <input type="password" name="password_two" placeholder="password">
-    <input type="submit" value="Отправить">
+    {{ form.hidden_tag() }}
+    {% for field in form if field.name not in ['csrf_token', 'remember', 'submit'] %}
+    {{ field.label() }}
+{% if field.errors %}
+    {{ field(class="invalid")}}
+    {% for e in field.errors %}
+    {{ e }}
+    {% endfor %}
+{% else %}
+    {{ field() }}
+{% endif %}
+{% endfor %}
+{{ form.submit}}
 </form>
 <h1>USERS:</h1>
-{% for i in users %}
-    {{i}}
-{% endfor %}
 {% endblock %}

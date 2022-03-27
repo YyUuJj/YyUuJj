@@ -6,8 +6,17 @@
 {% endfor %}
 <form action="" method="POST">
 {{ form.hidden_tag() }}
-{{ form.email.label() }} {{ form.email() }}
-{{ form.psw.label() }} {{ form.psw() }}
+{% for field in form if field.name not in ['csrf_token', 'remember', 'submit'] %}
+    {{ field.label() }}
+{% if field.errors %}
+    {{ field(class="invalid")}}
+    {% for e in field.errors %}
+    {{ e }}
+    {% endfor %}
+{% else %}
+    {{ field() }}
+{% endif %}
+{% endfor %}
 {{ form.remember.label() }} {{ form.remember() }}
 {{ form.submit() }}
     <!-- <input type="email" name="email">

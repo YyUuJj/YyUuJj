@@ -7,7 +7,7 @@ from FDataBase import FDataBase
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from UserLogin import UserLogin
-from forms import LoginForm
+from forms import LoginForm, RegisterForm
 
 
 #config
@@ -63,20 +63,17 @@ def about():
 
 @app.route("/registration", methods=['POST',"GET"])
 def registration():
-    if request.method == "POST":
-        if len(request.form['name']) > 4 and len(request.form['email']) > 4 \
-            and len(request.form['password']) > 4 and request.form['password'] == request.form['password_two']:
-            hash = generate_password_hash(request.form['password'])
-            res = dbase.addUser(request.form['name'],request.form['email'], hash)
-            if res:
-                flash('Вы успешно зарегистрированы', 'success')
-                return redirect(url_for('login'))
-            else:
-                flash("Ошибка при добавлении в БД", 'error')
+    form = RegisterForm()
+    if form.validate_on_submit():
+        hash = generate_password_hash(form.psw.data)
+        res = dbase.addUser(form.name.data, form.email.data, hash)
+        if res:
+            flash('Вы успешно зарегистрированы', 'success')
+            return redirect(url_for('login'))
         else:
-            flash("Вы неправильно заполнили форму", 'error')
+            flash("Ошибка при добавлении в БД", 'error')
 
-    return render_template('registration.html', title="registration", menu=menu, users=users)
+    return render_template('registration.html', title="registration", menu=menu, form=form)
 
 # @app.route("/login", methods=['POST', "GET"])
 # def login():
