@@ -1,0 +1,18 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block content %}
+
+{{ super() }}
+<p>Админ панель</p>
+
+{% for cat,msg in get_flashed_messages(True) %}
+    {{msg}}
+{% endfor %}
+
+<form action="" method="post">
+    <input type="text" name="user">
+    <input type="password" name="psw" id="">
+    <input type="submit" value="Войти">
+</form>
+
+{% endblock %}

@@ -8,6 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from UserLogin import UserLogin
 from forms import LoginForm, RegisterForm
+from admin.admin import admin
 
 
 #config
@@ -22,6 +23,9 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = '725a259864a0f8c7636a25ddc63a8c966afd6f86'
 app.config.from_object(__name__)
 app.config.update(dict(DATABASE=os.path.join(app.root_path,'flsite.db')))
+
+app.register_blueprint(admin, url_prefix='/admin')
+
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message = 'Для начала работы авторизуйтесь'
