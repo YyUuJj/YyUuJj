@@ -1,12 +1,11 @@
-{% extends 'base.html' %}
+{% extends 'admin/base_admin.html' %}
 {% block content %}
 {{ super() }}
-<p><a href="{{url_for('admin.index')}}">Админ-панель</a></p>
-<p>main page</p>
+<h1>{{title}}</h1>
 <h1>Число посещений данной страницы: {{ visits }}</h1>
 <h2>Список статей:</h2>
 <ul>
-{% for p in posts %}
+{% for p in list %}
 <li><a href="{{ url_for('showPost', alias=p.url)}}">{{p.title}}</a></li>
 <p>{{ p.text[:50] | striptags }}</p>
 <p>{{ p.likes }}</p>
