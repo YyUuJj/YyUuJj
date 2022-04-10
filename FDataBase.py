@@ -25,10 +25,11 @@ class FDataBase:
                 print("Статья с таким URL уже существует")
                 return False
             tm = math.floor(time.time())
-            self.__cur.execute("INSERT INTO posts VALUES(NULL, ?, ?, ?, ?)", (title, text, url, tm))
+            self.__cur.execute("INSERT INTO posts (title, text, url, time) VALUES(?,?,?,?)", (title, text, url, tm))
             self.__db.commit()
+            print("TEST")
         except sqlite3.Error as e:
-            print("Ошибка  добавления статьи в бд"+str(e))
+            print("Ошибка  добавления статьи в бд  "+str(e))
             return False
         return True 
 
@@ -52,19 +53,19 @@ class FDataBase:
         return []
     
     def addUser(self, name, email, password):
-        # try:
-        self.__cur.execute(f"SELECT COUNT() AS `count` FROM users WHERE email LIKE '{email}'")
-        res = self.__cur.fetchone()
-        if res['count'] > 0:
-            print("Пользователь с таким email уже существует")
+        try:
+            self.__cur.execute(f"SELECT COUNT() AS `count` FROM users WHERE email LIKE '{email}'")
+            res = self.__cur.fetchone()
+            if res['count'] > 0:
+                print("Пользователь с таким email уже существует")
+                return False
+            
+            tm = math.floor(time.time())
+            self.__cur.execute("INSERT INTO users VALUES()", (name, email, password, tm))
+            self.__db.commit()
+        except sqlite3.Error as e:
+            print("Ошибка добавления пользователя в БД" + str(e))
             return False
-        
-        tm = math.floor(time.time())
-        self.__cur.execute("INSERT INTO users VALUES(NULL, ?, ?, ?, NULL, ?)", (name, email, password, tm))
-        self.__db.commit()
-        # except sqlite3.Error as e:
-        #     print("Ошибка добавления пользователя в БД" + str(e))
-        #     return False
         
         return True
     
